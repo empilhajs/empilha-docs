@@ -64,6 +64,7 @@ const sidebar = [
 
 export default defineConfig({
   lang: 'pt-BR',
+  base: '/empilha-docs/',
   title: 'Empilha',
   titleTemplate: ':title · Empilha',
   description:
