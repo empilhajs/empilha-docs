@@ -1,0 +1,127 @@
+---
+title: Configuração
+description: Centralize porta, HTTP, plugins e banco em um arquivo tipado.
+---
+
+# Configuração
+
+O bootstrap já acumulou banco, autenticação e políticas HTTP. Vamos mover
+opções para um arquivo tipado e manter `app.ts` legível.
+
+## Crie `empilha.config.ts`
+
+Na raiz do projeto:
+
+```ts
+import { defineConfig } from "empilha";
+import { postgres } from "@empilha/pg";
+import { jwt } from "@empilha/jwt";
+
+const access = jwt({
+  name: "access",
+  secret: process.env.JWT_SECRET!,
+  expiresIn: "7d",
+  issuer: "tasks-api",
+});
+
+export default defineConfig({
+  server: {
+    port: Number(process.env.PORT) || 4000,
+  },
+  http: {
+    cors: process.env.CORS_ORIGIN || false,
+    maxBodyBytes: 1024 * 1024,
+    bodyTimeout: 10_000,
+    handlerTimeout: 30_000,
+    maxConcurrentRequests: 500,
+    shutdownTimeout: 15_000,
+  },
+  openapi: {
+    title: "Tasks API",
+    version: "1.0.0",
+  },
+  plugins: [
+    access.auth(),
+    postgres({
+      url: process.env.DATABASE_URL!,
+      sql: "./src/queries",
+      healthCheck: "postgres",
+    }),
+  ],
+});
+```
+
+`defineConfig()` mantém autocomplete e verificação de tipos. Segredos continuam
+no ambiente.
+
+## Aplique no bootstrap
+
+```ts
+import { Empilha } from "empilha";
+import config from "../empilha.config";
+import { TaskController } from "./controllers/task.controller";
+
+const app = new Empilha()
+  .configure(config)
+  .initialize([TaskController]);
+
+await app.run();
+```
+
+`server.port` permite chamar `run()` sem argumento.
+
+## Limites HTTP
+
+| Opção | Protege contra | Padrão |
+| --- | --- | --- |
+| `maxBodyBytes` | body excessivo em memória | 1 MiB |
+| `bodyTimeout` | cliente lento enviando body | desativado |
+| `handlerTimeout` | handler que não termina | 30 s |
+| `maxConcurrentRequests` | saturação por concorrência | ilimitado |
+| `shutdownTimeout` | drenagem que não termina | 15 s |
+
+Passe `null` aos timeouts que aceitam essa opção para desabilitá-los.
+
+## CORS
+
+CORS começa desativado:
+
+```ts
+http: {
+  cors: "https://app.example.com",
+}
+```
+
+Use uma origem explícita em produção. `false` mantém CORS desligado.
+
+## Configuração fluente continua disponível
+
+O objeto centralizado é conveniente, não obrigatório:
+
+```ts
+const app = new Empilha()
+  .configureHttp({ handlerTimeout: 20_000 })
+  .openapi({ title: "Tasks API", version: "1.0.0" })
+  .use(access.auth())
+  .initialize([TaskController]);
+```
+
+Escolha um estilo principal para o projeto. Evite espalhar a mesma política
+entre vários arquivos.
+
+## Validação de respostas
+
+Schemas de `@Returns` validam em runtime quando
+`NODE_ENV !== "production"`. Para controlar explicitamente:
+
+```ts
+app.validateResponseSchemas(true);
+```
+
+Mesmo com validação desligada, a serialização pelo schema continua removendo
+campos não declarados.
+
+::: warning Configure antes de `initialize()`
+Depois da preparação dos controllers, a aplicação não aceita mudanças que
+alterariam o contrato das rotas.
+:::

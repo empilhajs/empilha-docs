@@ -1,0 +1,220 @@
+:root {
+  --vp-c-brand-1: #e95a20;
+  --vp-c-brand-2: #f26b32;
+  --vp-c-brand-3: #ff7a43;
+  --vp-c-brand-soft: rgba(233, 90, 32, 0.12);
+  --vp-font-family-base:
+    Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  --vp-font-family-mono:
+    "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  --vp-layout-max-width: 1500px;
+  --vp-sidebar-width: 284px;
+  --vp-nav-height: 68px;
+}
+
+.dark {
+  --vp-c-brand-1: #ff7a43;
+  --vp-c-brand-2: #f26b32;
+  --vp-c-brand-3: #e95a20;
+  --vp-c-brand-soft: rgba(255, 122, 67, 0.12);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  letter-spacing: -0.008em;
+}
+
+::selection {
+  color: var(--vp-c-text-1);
+  background: var(--vp-c-brand-soft);
+}
+
+/* Navigation */
+
+.VPNavBar {
+  border-bottom: 1px solid var(--vp-c-divider);
+  background: color-mix(in srgb, var(--vp-c-bg) 88%, transparent) !important;
+  backdrop-filter: blur(18px);
+}
+
+.VPNavBarTitle .title {
+  font-weight: 760;
+  letter-spacing: -0.035em;
+}
+
+.VPNavBarTitle .logo {
+  width: 34px;
+  height: 34px;
+}
+
+.VPNavBarMenuLink,
+.VPNavBarMenuGroup .text {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.VPNavBarSearch .DocSearch-Button,
+.VPNavBarSearch .VPLocalSearchBox .shell {
+  border-color: var(--vp-c-divider);
+}
+
+/* Sidebar and outline */
+
+.VPSidebar {
+  padding-top: 32px !important;
+  background: var(--vp-c-bg-alt);
+}
+
+.VPSidebarItem.level-0 {
+  padding-bottom: 9px;
+}
+
+.VPSidebarItem.level-0 > .item > .text {
+  color: var(--vp-c-text-1);
+  font-size: 12px;
+  font-weight: 760;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.VPSidebarItem.level-1 .link {
+  margin: 2px 0;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease;
+}
+
+.VPSidebarItem.level-1.is-active > .item .link {
+  background: var(--vp-c-bg-soft);
+}
+
+.VPSidebarItem.level-1.is-active > .item .text {
+  color: var(--vp-c-brand-1);
+  font-weight: 680;
+}
+
+.VPDocAsideOutline .outline-title {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Documentation */
+
+.VPDoc .container > .content {
+  padding-top: 24px;
+}
+
+.vp-doc {
+  font-size: 16px;
+  line-height: 1.78;
+}
+
+.vp-doc > h1 {
+  margin-top: 10px;
+  max-width: 800px;
+  font-size: clamp(38px, 5vw, 56px);
+  line-height: 1.05;
+  letter-spacing: -0.052em;
+}
+
+.vp-doc > h1 + p {
+  max-width: 760px;
+  margin-top: 22px;
+  color: var(--vp-c-text-2);
+  font-size: 19px;
+  line-height: 1.65;
+}
+
+.vp-doc h2 {
+  margin-top: 58px;
+  padding-top: 22px;
+  border-top-color: var(--vp-c-divider);
+  font-size: 28px;
+  line-height: 1.25;
+  letter-spacing: -0.035em;
+}
+
+.vp-doc h3 {
+  margin-top: 34px;
+  font-size: 20px;
+  letter-spacing: -0.02em;
+}
+
+.vp-doc a {
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+.vp-doc :not(pre) > code {
+  padding: 3px 6px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 6px;
+  color: var(--vp-c-brand-1);
+  background: var(--vp-c-brand-soft);
+  font-size: 0.88em;
+  font-weight: 560;
+}
+
+.vp-doc div[class*="language-"] {
+  margin-top: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 13px;
+  box-shadow: 0 16px 45px rgba(30, 35, 55, 0.08);
+}
+
+.vp-doc div[class*="language-"]::before {
+  top: 14px;
+  right: 16px;
+  color: #817870;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.vp-doc table {
+  display: table;
+  width: 100%;
+  margin: 24px 0;
+  border-collapse: separate;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 12px;
+  border-spacing: 0;
+  overflow: hidden;
+}
+
+.vp-doc th {
+  color: var(--vp-c-text-1);
+  background: var(--vp-c-bg-alt);
+  font-size: 13px;
+  font-weight: 720;
+  letter-spacing: 0.015em;
+}
+
+.vp-doc th,
+.vp-doc td {
+  padding: 13px 16px;
+  border-right: 0;
+  border-bottom-color: var(--vp-c-divider);
+}
+
+.vp-doc tr:last-child td {
+  border-bottom: 0;
+}
+
+@media (max-width: 700px) {
+  :root {
+    --vp-nav-height: 60px;
+  }
+
+  .vp-doc table {
+    display: block;
+    overflow-x: auto;
+  }
+}
