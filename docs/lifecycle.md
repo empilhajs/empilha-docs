@@ -102,6 +102,40 @@ abortados e conexões restantes são fechadas.
 Promessas que ignoram o signal não podem ser interrompidas à força pelo
 JavaScript.
 
+### Cancelar I/O em timeout e shutdown
+
+Na maioria das rotas, não é preciso fazer nada. Um caso comum é consultar a
+API de uma transportadora para acompanhar uma entrega. Passe `context.signal`
+ao `fetch` para cancelar essa chamada se a rota exceder o timeout ou a
+aplicação receber um sinal de encerramento:
+
+```ts
+@Get("/orders/:id/tracking")
+async tracking(
+  @Param("id") orderId: string, 
+  @Context() context: RequestScope
+) {
+  const response = await fetch(
+    `https://api.carrier.example/orders/${orderId}/tracking`,
+    {
+      headers: { 
+        Authorization: `Bearer ${process.env.CARRIER_TOKEN}` 
+      },
+      signal: context.signal,
+    },
+  );
+
+  return response.json();
+}
+```
+
+Se a operação não aceitar `AbortSignal`, ela pode continuar até terminar mesmo
+depois de o cliente receber `504`. Nesse caso, o framework não consegue parar
+o trabalho por conta própria.
+
+Se o shutdown exceder `shutdownTimeout`, `app.close()` rejeita e os recursos
+são fechados quando as requisições em andamento terminarem.
+
 ## Hooks de bootstrap
 
 Plugins e integrações podem participar das fases:

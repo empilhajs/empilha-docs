@@ -108,6 +108,21 @@ O controller não sabe onde tarefas são guardadas. Quando trocarmos memória po
 PostgreSQL, o contrato HTTP poderá continuar igual. Em testes, o provider
 também pode ser substituído.
 
+### Providers com descarte
+
+Quando um provider abre um recurso, registre como liberá-lo:
+
+```ts
+app.provide("mailer", {
+  useFactory: () => createMailer(process.env.MAIL_URL!),
+  onDispose: (mailer) => mailer.close(),
+});
+```
+
+`onDispose` é chamado durante `app.close()` para liberar o recurso.
+
+Configure providers, mocks e substituições antes de `initialize()`.
+
 ::: warning Dependências de construtor precisam de `@Inject`
 Se um parâmetro não tiver token, `initialize()` falha informando a classe e a
 posição. O erro aparece no bootstrap, não durante uma requisição.
