@@ -53,6 +53,16 @@ O endpoint de criação já é documentável:
 create() {}
 ```
 
+Declare `@Returns(Schema)` sempre que possível. Sem esse decorator, a rota
+continua funcionando, mas o OpenAPI só consegue descrever a resposta como
+`Successful response`, sem um schema de conteúdo.
+
+Exemplos definidos no schema TypeBox também aparecem no Swagger UI:
+
+```ts
+const Url = t.String({ examples: ["https://example.com"] });
+```
+
 Não existe um segundo arquivo descrevendo body e resposta.
 
 ## Agrupe por tags

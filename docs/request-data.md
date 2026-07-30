@@ -33,7 +33,7 @@ página, também podem validar parâmetros.
 ## Query string
 
 ```ts
-import { Query } from "empilha";
+import { Query, t } from "empilha";
 
 @Get("/")
 list(
@@ -46,6 +46,26 @@ list(
 
 Uma chamada a `/tasks?done=true&page=2` entrega `true` e `2` ao método.
 Defaults do TypeScript continuam funcionando quando o parâmetro não existe.
+
+Parâmetros repetidos são preservados como arrays:
+
+```text
+/tasks?tag=backend&tag=typescript
+```
+
+Com `@Request()`, o valor será:
+
+```ts
+{ tag: ["backend", "typescript"] }
+```
+
+Para validar e converter uma lista, declare um array no schema:
+
+```ts
+const Filters = t.Object({
+  tag: t.Array(t.String()),
+});
+```
 
 ## Headers
 

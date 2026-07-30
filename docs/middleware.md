@@ -93,7 +93,20 @@ Ou direcione os registros:
 app.use(requestLogger((entry) => logger.info(entry)));
 ```
 
-Cada entrada contém método, path, status e duração.
+Cada entrada contém nível, `requestId`, método, path, status e duração:
+
+```ts
+{
+  level: "info",
+  requestId: "c2d8...",
+  method: "GET",
+  pathname: "/tasks",
+  status: 200,
+  durationMs: 4,
+}
+```
+
+O `requestId` é único por requisição e permite agrupar logs da mesma execução.
 
 ## Modifique a resposta
 

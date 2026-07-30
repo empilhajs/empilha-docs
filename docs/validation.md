@@ -46,6 +46,15 @@ create(@Body(CreateTask) input: CreateTaskInput) {
 1. valida o JSON;
 2. entrega o valor validado ao argumento.
 
+Como o body é JSON, envie o tipo de conteúdo correto:
+
+```http
+Content-Type: application/json
+```
+
+Um body com outro `Content-Type`, como `text/plain`, recebe `415 Unsupported
+Media Type` antes da validação.
+
 Um body inválido recebe `400` antes de o método executar:
 
 ```json

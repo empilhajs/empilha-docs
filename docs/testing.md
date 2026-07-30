@@ -100,9 +100,14 @@ O controller não muda para receber o mock.
 ```ts
 import { testPostgres } from "empilha";
 
-const database = testPostgres([
-  { id: 1, title: "Aprender Empilha", done: false },
-]);
+const database = testPostgres({
+  rows: [],
+  fixtures: {
+    taskList: [
+      { id: 1, title: "Aprender Empilha", done: false },
+    ],
+  },
+});
 
 const app = createTestApp([TaskController], (configured) => {
   configured.postgres(database, {
@@ -117,8 +122,23 @@ expect(response.status).toBe(200);
 expect(database.queries[0]).toContain("SELECT");
 ```
 
-O runner registra SQL e parâmetros. Fixtures por trecho de SQL permitem
-respostas diferentes para cada query.
+O runner registra SQL e parâmetros. As fixtures de rotas são associadas pelo
+nome lógico da query, o mesmo nome usado em `@Sql("taskList")`.
+
+```ts
+fixtures: {
+  taskList: [
+    { id: 1, title: "Aprender Empilha", done: false },
+  ],
+}
+```
+
+O valor continua sendo um array porque representa as linhas retornadas pelo
+PostgreSQL. Para uma query que retorna uma linha, `@Result("one")` seleciona o
+primeiro item.
+
+Para chamadas diretas ao runner, uma fixture também pode ser indexada pelo SQL
+compilado completo.
 
 ## Requisição crua
 
