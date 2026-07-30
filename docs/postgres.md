@@ -84,6 +84,15 @@ Arquivos em `src/database` rodam em ordem lexicográfica. O histórico fica em
 `empilha_migrations`; alterar o conteúdo de uma migration já aplicada causa
 erro de checksum.
 
+O migrador usa um advisory lock do PostgreSQL para que apenas uma execução por
+banco aplique migrations por vez. Cada arquivo SQL e seu registro de checksum
+são confirmados na mesma transação: se o arquivo falhar, o histórico também não
+é alterado.
+
+O script `bun run dev` do scaffold usa esse mesmo migrador versionado antes de
+iniciar a aplicação. Portanto, reiniciar o ambiente de desenvolvimento não
+executa novamente migrations já registradas.
+
 ## Verifique a saúde
 
 Com health check configurado:
