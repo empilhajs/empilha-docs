@@ -167,6 +167,11 @@ app
   .onClose(async () => {});
 ```
 
+Registre `onBeforeValidate()` e `onAfterInitialize()` durante a configuração.
+`onStart()` pode ser registrado até antes de `listen()` ou `run()`; depois que
+o servidor inicia, o framework rejeita o registro porque o hook não teria mais
+como executar. `onClose()` deve ser registrado antes de `app.close()` concluir.
+
 Na maioria das aplicações, `configure → initialize → run` é suficiente.
 
 ::: info Você chegou ao fim da trilha
