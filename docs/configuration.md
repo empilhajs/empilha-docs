@@ -36,6 +36,10 @@ export default defineConfig({
     maxConcurrentRequests: 500,
     shutdownTimeout: 15_000,
   },
+  health: {
+    timeout: 2_000,
+    maxConcurrentRequests: 8,
+  },
   openapi: {
     title: "Tasks API",
     version: "1.0.0",
@@ -81,6 +85,20 @@ await app.run();
 | `shutdownTimeout` | drenagem que não termina | 15 s |
 
 Passe `null` aos timeouts que aceitam essa opção para desabilitá-los.
+
+## Health checks
+
+Ao registrar ao menos um health check, a aplicação expõe `/health/live` e
+`/health/ready`. O primeiro verifica somente se o processo está respondendo;
+o segundo verifica se as dependências estão prontas para atender tráfego.
+
+| Opção | Protege contra | Padrão |
+| --- | --- | --- |
+| `health.timeout` | dependência travada durante um check | 2 s |
+| `health.maxConcurrentRequests` | excesso de probes consultando dependências | 8 |
+
+Os checks de readiness são executados em paralelo. Use `null` em `timeout` ou
+`maxConcurrentRequests` para remover o limite correspondente.
 
 ## CORS
 

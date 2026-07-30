@@ -67,8 +67,27 @@ app.healthCheck("mailer", async () => {
 });
 ```
 
-Ao menos um check registra `GET /health`. Se qualquer check falhar, a rota
-responde `503`.
+Ao menos um check registra dois endpoints:
+
+- `GET /health/live` confirma que o processo HTTP está vivo. Ele não consulta
+  dependências e deve ser usado pela sonda de liveness.
+- `GET /health/ready` verifica todas as dependências registradas e deve ser
+  usado pela sonda de readiness ou pelo load balancer.
+
+Os checks de readiness são executados em paralelo. Se qualquer um falhar ou
+exceder o timeout, `/health/ready` responde `503` com status `degraded`.
+
+Configure o prazo individual dos checks e quantas requisições de readiness
+podem executar ao mesmo tempo:
+
+```ts
+app.configureHealthChecks({
+  timeout: 2_000,
+  maxConcurrentRequests: 8,
+});
+```
+
+Use `null` em qualquer opção para remover o respectivo limite.
 
 ## Registre recursos próprios
 

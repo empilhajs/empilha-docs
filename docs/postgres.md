@@ -89,7 +89,7 @@ erro de checksum.
 Com health check configurado:
 
 ```sh
-curl http://localhost:4000/health
+curl http://localhost:4000/health/ready
 ```
 
 ```json
