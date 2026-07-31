@@ -107,6 +107,7 @@ Cada entrada contém nível, `requestId`, método, path, status e duração:
 ```
 
 O `requestId` é único por requisição e permite agrupar logs da mesma execução.
+Ele também é enviado automaticamente ao cliente no header `X-Request-Id`.
 
 ## Modifique a resposta
 

@@ -118,6 +118,10 @@ app.provide("mailer", {
 `shutdownTimeout` limita a espera. Quando vence, os `AbortSignal` ativos são
 abortados e conexões restantes são fechadas.
 
+`disposalTimeout` limita o descarte de providers e hooks `onClose()`. Se um
+recurso não terminar nesse prazo, `app.close()` rejeita em vez de permanecer
+bloqueado indefinidamente.
+
 Promessas que ignoram o signal não podem ser interrompidas à força pelo
 JavaScript.
 

@@ -83,6 +83,7 @@ await app.run();
 | `handlerTimeout` | handler que não termina | 30 s |
 | `maxConcurrentRequests` | saturação por concorrência | ilimitado |
 | `shutdownTimeout` | drenagem que não termina | 15 s |
+| `disposalTimeout` | fechamento de recursos que não termina | 15 s |
 
 Passe `null` aos timeouts que aceitam essa opção para desabilitá-los.
 
@@ -111,6 +112,23 @@ http: {
 ```
 
 Use uma origem explícita em produção. `false` mantém CORS desligado.
+
+Para credenciais, cache de preflight e métodos/headers explícitos:
+
+```ts
+http: {
+  cors: {
+    origin: "https://app.example.com",
+    methods: "GET, POST, HEAD",
+    headers: "Content-Type, Authorization",
+    credentials: true,
+    maxAge: 600,
+  },
+}
+```
+
+O framework valida o preflight e envia `Vary: Origin`. Com `credentials: true`,
+a origem não pode ser `*`.
 
 ## Configuração fluente continua disponível
 
