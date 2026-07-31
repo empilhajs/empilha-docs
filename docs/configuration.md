@@ -32,6 +32,7 @@ export default defineConfig({
   },
   http: {
     cors: process.env.CORS_ORIGIN || false,
+    requestId: true,
     maxBodyBytes: 1024 * 1024,
     bodyTimeout: 10_000,
     handlerTimeout: 30_000,
@@ -84,6 +85,7 @@ await app.run();
 | Opção | Protege contra | Padrão |
 | --- | --- | --- |
 | `maxBodyBytes` | body excessivo em memória; responde `413` quando excedido | 1 MiB |
+| `requestId` | adiciona `X-Request-Id` às respostas | `true` |
 | `bodyTimeout` | cliente lento enviando body | desativado |
 | `handlerTimeout` | handler que não termina | 30 s |
 | `maxConcurrentRequests` | saturação por concorrência | ilimitado |

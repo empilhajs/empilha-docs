@@ -98,6 +98,10 @@ debug(@Request() request: RequestContext) {
 }
 ```
 
+Os mapas `rawParams`, `rawQuery`, `params` e `query` são somente leitura por
+contrato. Quando `@QueryParams` aplica defaults ou conversões, o framework
+substitui `query` por um novo mapa e preserva `rawQuery` sem alterá-lo.
+
 Prefira `@Param`, `@Query` e `@Header` quando a rota usa poucos valores. O
 contrato fica visível na assinatura.
 
