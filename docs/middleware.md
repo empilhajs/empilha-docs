@@ -125,6 +125,20 @@ app.logger({
 Também é possível informar o logger na configuração centralizada, em
 `logging.logger`. O logger deve ser definido durante a configuração da app.
 
+## Parâmetros crus em middleware
+
+Middlewares e plugins que precisam da URL original usam `rawParams` e
+`rawQuery`. Esses campos preservam texto (e arrays de texto em queries
+repetidas), enquanto `query` é o valor de trabalho da rota e pode ser
+normalizado por `@QueryParams()`.
+
+```ts
+// GET /tasks/42?limit=10
+request.rawParams.id // "42"
+request.rawQuery.limit // "10"
+request.query.limit // 10, após @QueryParams(t.Object({ limit: t.Integer() }))
+```
+
 ## Modifique a resposta
 
 ```ts
