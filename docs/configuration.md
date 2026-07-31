@@ -17,6 +17,8 @@ import { defineConfig } from "empilha";
 import { postgres } from "@empilha/pg";
 import { jwt } from "@empilha/jwt";
 
+const logger = console;
+
 const access = jwt({
   name: "access",
   secret: process.env.JWT_SECRET!,
@@ -52,6 +54,9 @@ export default defineConfig({
       healthCheck: "postgres",
     }),
   ],
+  logging: {
+    logger,
+  },
 });
 ```
 

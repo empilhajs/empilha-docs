@@ -56,6 +56,10 @@ app.onBackgroundError((error, route) => {
 });
 ```
 
+Se esse callback de observabilidade também falhar, o scheduler continua
+processando tarefas. A falha do callback é registrada no logger da aplicação
+com o erro original e os metadados da tarefa.
+
 Esse scheduler é em memória. Não oferece persistência, retry ou recuperação
 depois que o processo morre.
 

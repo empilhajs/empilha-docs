@@ -109,6 +109,22 @@ Cada entrada contém nível, `requestId`, método, path, status e duração:
 O `requestId` é único por requisição e permite agrupar logs da mesma execução.
 Ele também é enviado automaticamente ao cliente no header `X-Request-Id`.
 
+## Logger da aplicação
+
+O Empilha usa `console` como fallback, mas você pode configurar um logger por
+aplicação para encaminhar eventos do framework ao seu provedor de observabilidade:
+
+```ts
+app.logger({
+  info: (details, message) => logger.info(details, message),
+  warn: (details, message) => logger.warn(details, message),
+  error: (details, message) => logger.error(details, message),
+});
+```
+
+Também é possível informar o logger na configuração centralizada, em
+`logging.logger`. O logger deve ser definido durante a configuração da app.
+
 ## Modifique a resposta
 
 ```ts
