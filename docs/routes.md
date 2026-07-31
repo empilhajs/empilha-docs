@@ -57,10 +57,12 @@ Os métodos disponíveis são:
 
 ```ts
 @Get(path)
+@Head(path)
 @Post(path)
 @Put(path)
 @Patch(path)
 @Delete(path)
+@Options(path)
 ```
 
 ## Registre controllers explicitamente

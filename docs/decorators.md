@@ -16,10 +16,12 @@ no contexto em que ele se torna necessário.
 | --- | --- | --- |
 | `@Controller(prefix, options?)` | classe | prefixo, tags, middleware e auth compartilhados |
 | `@Get(path)` | método | rota GET |
+| `@Head(path)` | método | rota HEAD |
 | `@Post(path)` | método | rota POST |
 | `@Put(path)` | método | rota PUT |
 | `@Patch(path)` | método | rota PATCH |
 | `@Delete(path)` | método | rota DELETE |
+| `@Options(path)` | método | rota OPTIONS |
 | `@Use(...middlewares)` | classe ou método | middleware no alcance declarado |
 
 Opções de controller:

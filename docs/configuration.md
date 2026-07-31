@@ -83,7 +83,7 @@ await app.run();
 
 | Opção | Protege contra | Padrão |
 | --- | --- | --- |
-| `maxBodyBytes` | body excessivo em memória | 1 MiB |
+| `maxBodyBytes` | body excessivo em memória; responde `413` quando excedido | 1 MiB |
 | `bodyTimeout` | cliente lento enviando body | desativado |
 | `handlerTimeout` | handler que não termina | 30 s |
 | `maxConcurrentRequests` | saturação por concorrência | ilimitado |

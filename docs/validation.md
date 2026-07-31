@@ -68,6 +68,10 @@ Um body inválido recebe `400` antes de o método executar:
 }
 ```
 
+Se o body exceder `http.maxBodyBytes`, a requisição recebe `413 Payload Too
+Large`. O limite é aplicado também quando o cliente envia o body em chunks ou
+omite `Content-Length`.
+
 ## Valide a query como um objeto
 
 Para paginação, valores relacionados formam um único contrato:
