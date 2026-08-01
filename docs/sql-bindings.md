@@ -13,7 +13,7 @@ framework os converte para parâmetros posicionais como `$1` e `$2`.
 Adicione a `src/queries/tasks.sql`:
 
 ```sql
--- taskCreate
+-- @query taskCreate
 INSERT INTO tasks (owner_id, title, description)
 VALUES (:auth.sub, :body.title, :body.description)
 RETURNING id, title, description, done, created_at;
@@ -78,7 +78,7 @@ O parser distingue o binding do cast `::`.
 Em atualizações parciais, o sufixo `?` informa se o campo foi enviado:
 
 ```sql
--- taskUpdate
+-- @query taskUpdate
 UPDATE tasks
 SET
   title = CASE

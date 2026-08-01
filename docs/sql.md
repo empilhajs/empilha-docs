@@ -30,19 +30,20 @@ Migrations criam estrutura. Queries da aplicação ficam em outro diretório.
 Crie `src/queries/tasks.sql`:
 
 ```sql
--- taskList
+-- @query taskList
 SELECT id, title, description, done, created_at
 FROM tasks
 ORDER BY created_at DESC;
 
--- taskFind
+-- @query taskFind
 SELECT id, title, description, done, created_at
 FROM tasks
 WHERE id = :param.id;
 ```
 
-Uma linha `-- nome` inicia uma nova query. O restante continua sendo SQL
-normal, legível por editores e pelo PostgreSQL.
+Uma linha `-- @query nome` inicia uma nova query. O restante continua sendo SQL
+normal, legível por editores e pelo PostgreSQL. Comentários comuns continuam
+sendo comentários e não são interpretados pelo loader.
 
 ## Carregue antes dos controllers
 
