@@ -46,6 +46,7 @@ const sidebar = [
     collapsed: true,
     items: [
       { text: '17 · Configuração', link: '/configuration' },
+      { text: '17a · Segurança operacional', link: '/security' },
       { text: '18 · OpenAPI', link: '/openapi' },
       { text: '19 · Testes', link: '/testing' },
       { text: '20 · Ciclo de vida', link: '/lifecycle' },
@@ -58,6 +59,7 @@ const sidebar = [
       { text: 'Ordem de execução', link: '/execution-model' },
       { text: 'Decorators', link: '/decorators' },
       { text: 'Plugins', link: '/plugins' },
+      { text: 'Migração e compatibilidade', link: '/migration' },
     ],
   },
 ];

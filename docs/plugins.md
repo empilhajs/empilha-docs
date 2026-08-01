@@ -75,5 +75,6 @@ normais de construtor, prefira `provide()`.
 | `onClose` | durante o fechamento |
 
 O contexto do plugin expõe `configure()`, `configureHttp()`,
-`useMiddleware()`, `registerPluginService()`, `registerQuery()` e o adaptador
-HTTP. Plugins devem ser instalados antes de `initialize()`.
+`useMiddleware()`, `registerPluginService()`, `registerQuery()`, `auth()`,
+`postgres()` e o adaptador HTTP. Plugins devem ser instalados antes de
+`initialize()`.
