@@ -97,7 +97,7 @@ const access = jwt<UserIdentity>({
 });
 
 const app = new Empilha()
-  .use(access.auth())
+  .usePlugin(access.auth())
   .initialize([TaskController]);
 ```
 

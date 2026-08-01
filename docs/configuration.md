@@ -145,7 +145,7 @@ O objeto centralizado é conveniente, não obrigatório:
 const app = new Empilha()
   .configureHttp({ handlerTimeout: 20_000 })
   .openapi({ title: "Tasks API", version: "1.0.0" })
-  .use(access.auth())
+  .usePlugin(access.auth())
   .initialize([TaskController]);
 ```
 

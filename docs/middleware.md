@@ -37,7 +37,7 @@ com acesso à resposta.
 Global:
 
 ```ts
-app.use(timing);
+app.useMiddleware(timing);
 ```
 
 Controller:
@@ -84,13 +84,13 @@ Para o caso comum:
 ```ts
 import { requestLogger } from "empilha";
 
-app.use(requestLogger());
+app.useMiddleware(requestLogger());
 ```
 
 Ou direcione os registros:
 
 ```ts
-app.use(requestLogger((entry) => logger.info(entry)));
+app.useMiddleware(requestLogger((entry) => logger.info(entry)));
 ```
 
 Cada entrada contém nível, `requestId`, método, path, status e duração:

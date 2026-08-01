@@ -7,31 +7,30 @@ next: false
 
 # Plugins
 
-Um plugin recebe a instância do `Empilha` durante a fase de configuração.
-Use plugins para agrupar integração, providers, hooks e rotas auxiliares que
-serão reutilizados em mais de uma aplicação.
+Um plugin recebe um contexto limitado de configuração durante a fase de
+configuração. Use plugins para agrupar integrações e registros reutilizáveis.
 
 ## Plugin mínimo
 
 ```ts
 import { definePlugin, requestLogger } from "empilha";
 
-export const observability = definePlugin((app) => {
-  app.use(requestLogger());
-  app.healthCheck("telemetry", () => telemetry.ready());
-  app.onClose(() => telemetry.close());
+export const observability = definePlugin((context) => {
+  context.useMiddleware(requestLogger());
+  context.registerPluginService("telemetry", telemetry);
 });
 ```
 
-Instale com `use()`:
+Instale com `usePlugin()`:
 
 ```ts
 const app = new Empilha()
-  .use(observability)
+  .usePlugin(observability)
   .initialize([TaskController]);
 ```
 
-`use()` distingue um plugin de uma função de middleware.
+Middleware e plugins têm métodos de registro separados: use
+`useMiddleware()` para middleware e `usePlugin()` para plugins.
 
 ## Plugin configurável
 
@@ -41,12 +40,10 @@ type CacheOptions = {
 };
 
 export function cache(options: CacheOptions) {
-  return definePlugin((app) => {
+  return definePlugin((context) => {
     const client = createCache(options.url);
 
-    app.provide("cache", { useValue: client });
-    app.healthCheck("cache", () => client.ping());
-    app.onClose(() => client.close());
+    context.registerPluginService("cache", client);
   });
 }
 ```
@@ -77,4 +74,6 @@ normais de construtor, prefira `provide()`.
 | `onStart` | quando o servidor inicia |
 | `onClose` | durante o fechamento |
 
-Plugins devem ser instalados antes de `initialize()`.
+O contexto do plugin expõe `configure()`, `configureHttp()`,
+`useMiddleware()`, `registerPluginService()`, `registerQuery()` e o adaptador
+HTTP. Plugins devem ser instalados antes de `initialize()`.

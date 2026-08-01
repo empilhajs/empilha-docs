@@ -23,7 +23,7 @@ const app = new Empilha()
   .postgres(pool, { sql: "./src/queries" })
   .provide(TaskService)
   .auth(verifyToken)
-  .use(logger)
+  .useMiddleware(logger)
   .initialize([TaskController]);
 
 await app.run();

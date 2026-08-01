@@ -27,7 +27,7 @@ No uso comum:
 const app = new Empilha()
   .configure(config)
   .provide(Service)
-  .use(plugin)
+  .usePlugin(plugin)
   .initialize([Controller]);
 
 await app.run();
@@ -35,6 +35,11 @@ await app.run();
 
 `initialize()` chama `validate()` automaticamente. Use as fases separadas
 somente em integrações avançadas.
+
+Rotas simples, sem middleware global, DI request-scoped ou dependências de
+contexto, podem usar um caminho leve sem criar `RequestScope`. Isso não remove
+timeout nem cancelamento: o `RequestContext.signal` continua sendo propagado
+para o handler.
 
 ## Requisição
 

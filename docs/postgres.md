@@ -28,7 +28,7 @@ const database = postgres({
 });
 
 const app = new Empilha()
-  .use(database)
+  .usePlugin(database)
   .initialize([TaskController]);
 
 await app.run({ port: 4000 });

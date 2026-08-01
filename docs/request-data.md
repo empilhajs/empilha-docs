@@ -92,6 +92,7 @@ debug(@Request() request: RequestContext) {
   return {
     method: request.method,
     path: request.pathname,
+    signal: request.signal,
     query: request.query,
     headers: request.headers,
   };
@@ -104,6 +105,24 @@ substitui `query` por um novo mapa e preserva `rawQuery` sem alterá-lo.
 
 Prefira `@Param`, `@Query` e `@Header` quando a rota usa poucos valores. O
 contrato fica visível na assinatura.
+
+`request.signal` é abortado quando o cliente desconecta ou quando o timeout da
+requisição vence. Passe-o para operações cooperativas, como `fetch`:
+
+```ts
+@Get("/remote")
+async remote(@Request() request: RequestContext) {
+  const response = await fetch("https://api.example.com/data", {
+    signal: request.signal,
+  });
+
+  return response.json();
+}
+```
+
+Rotas simples podem executar sem `RequestScope`; nesse caso, o `signal` do
+`RequestContext` continua disponível para cancelamento, mas APIs como
+`requestContext()` e DI request-scoped exigem `@Context()`/escopo.
 
 ::: info Até aqui, tudo veio da URL
 O próximo capítulo trata de JSON e schemas. Body exige validação porque é dado
