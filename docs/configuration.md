@@ -65,6 +65,11 @@ export default defineConfig({
 `defineConfig()` mantém autocomplete e verificação de tipos. Segredos continuam
 no ambiente.
 
+No projeto criado pelo scaffold, `database` é uma seção de configuração
+consumida pelo `src/app.ts` para criar o pool e chamar `app.postgres()`. O
+`.configure()` aplica as opções operacionais, mas não cria uma conexão com o
+banco automaticamente.
+
 ## Aplique no bootstrap
 
 ```ts

@@ -61,6 +61,16 @@ const app = new Empilha()
   .initialize([TaskController]);
 ```
 
+Por padrão, `app.close()` também chama `pool.end()`. Se o pool pertence a
+outro componente do processo, preserve-o com `close: false`:
+
+```ts
+app.postgres(pool, {
+  close: false,
+  healthCheck: false,
+});
+```
+
 ## Execute migrations
 
 Adicione:
@@ -121,9 +131,14 @@ app.postgres(pool, {
 });
 ```
 
-O timeout gera `504` e envia um `AbortSignal` ao runner. Configure também
-`statement_timeout` e `lock_timeout` no PostgreSQL; o limite da aplicação não
-substitui limites do banco.
+O timeout gera `504` e envia um `AbortSignal` ao runner. O plugin oficial
+`@empilha/pg` usa esse sinal para cancelar a query no PostgreSQL. Em um runner
+próprio, o método `query()` precisa observar `options.signal`; caso contrário,
+o framework encerra a requisição, mas o driver pode continuar o trabalho até o
+próprio timeout.
+
+Configure também `statement_timeout` e `lock_timeout` no PostgreSQL; o limite
+da aplicação não substitui limites do banco.
 
 ## Outro driver
 
