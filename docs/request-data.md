@@ -47,25 +47,22 @@ list(
 Uma chamada a `/tasks?done=true&page=2` entrega `true` e `2` ao método.
 Defaults do TypeScript continuam funcionando quando o parâmetro não existe.
 
-Parâmetros repetidos são preservados como arrays:
-
-```text
-/tasks?tag=backend&tag=typescript
-```
-
-Com `@Request()`, o valor será:
-
-```ts
-{ tag: ["backend", "typescript"] }
-```
-
-Para validar e converter uma lista, declare um array no schema:
+Quando a rota tem muitos filtros, você pode validar a query inteira com
+`@QueryParams`:
 
 ```ts
 const Filters = t.Object({
-  tag: t.Array(t.String()),
+  page: t.Integer({ minimum: 1 }),
+  done: t.Optional(t.Boolean()),
 });
+
+@Get("/")
+@QueryParams(Filters, { page: 1 })
+list() {}
 ```
+
+Deixe schemas e validações detalhadas para o próximo capítulo. Aqui, a regra
+simples é: poucos valores usam `@Query`; muitos filtros usam `@QueryParams`.
 
 ## Headers
 
@@ -79,81 +76,6 @@ list(@Header("x-tenant-id") tenantId: string) {
 ```
 
 Nomes de headers são normalizados para minúsculas.
-
-## Quando precisar do conjunto inteiro
-
-`@Request()` injeta a requisição normalizada:
-
-```ts
-import { Request, type RequestContext } from "empilha";
-
-@Get("/debug")
-debug(@Request() request: RequestContext) {
-  return {
-    method: request.method,
-    path: request.pathname,
-    signal: request.signal,
-    query: request.query,
-    headers: request.headers,
-  };
-}
-```
-
-### Valores originais e valores tratados
-
-O `RequestContext` oferece quatro objetos para parâmetros. Todos são somente
-leitura:
-
-| Propriedade | Conteúdo |
-| --- | --- |
-| `rawParams` | parâmetros do caminho, sempre como texto |
-| `params` | parâmetros do caminho disponíveis para a rota |
-| `rawQuery` | query string original, antes de conversões e defaults |
-| `query` | query string usada pela rota, possivelmente normalizada |
-
-Na prática, você raramente precisa acessá-los diretamente. Use `@Param`,
-`@Query` e `@Header` quando a rota usa poucos valores; assim o contrato fica
-visível na assinatura.
-
-Use `@QueryParams(Schema)` quando quiser validar e normalizar a query inteira:
-
-```ts
-const Filters = t.Object({
-  page: t.Integer({ minimum: 1 }),
-  done: t.Optional(t.Boolean()),
-});
-
-@Get("/")
-@QueryParams(Filters, { page: 1 })
-list() {}
-```
-
-Nesse caso, `query` recebe os defaults e conversões definidos pelo schema, mas
-`rawQuery` continua representando exatamente os valores recebidos na URL.
-O framework cria um novo objeto para `query`; não altere nenhuma dessas
-propriedades manualmente.
-
-Use `@Request()` somente quando precisar de várias informações da requisição
-ao mesmo tempo. Em services, `requestContext()` só funciona quando existe um
-`RequestScope` ativo. Rotas leves podem não criar esse escopo; nesses casos,
-`@Context()`, DI com escopo de request e `requestContext()` não ficam
-disponíveis automaticamente.
-
-`request.signal` é abortado quando o cliente desconecta ou quando o timeout da
-requisição vence. Passe-o para operações cooperativas, como `fetch`:
-
-```ts
-@Get("/remote")
-async remote(@Request() request: RequestContext) {
-  const response = await fetch("https://api.example.com/data", {
-    signal: request.signal,
-  });
-
-  return response.json();
-}
-```
-
-O `signal` continua disponível no `RequestContext` mesmo em uma rota leve.
 
 ::: info Até aqui, tudo veio da URL
 O próximo capítulo trata de JSON e schemas. Body exige validação porque é dado
