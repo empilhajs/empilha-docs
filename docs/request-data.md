@@ -103,6 +103,13 @@ Os mapas `rawParams`, `rawQuery`, `params` e `query` são somente leitura por
 contrato. Quando `@QueryParams` aplica defaults ou conversões, o framework
 substitui `query` por um novo mapa e preserva `rawQuery` sem alterá-lo.
 
+Use `@Query("page", Number)` para poucos valores diretamente na assinatura.
+Use `@QueryParams(Schema)` quando quiser validar e normalizar a query inteira.
+Use `@Request()` para receber o `RequestContext` completo; em services, use
+`requestContext()` somente quando houver um `RequestScope` ativo. Rotas leves
+podem não criar esse scope, então `@Context()`/DI request-scoped e
+`requestContext()` não são garantidos nesse caminho.
+
 Prefira `@Param`, `@Query` e `@Header` quando a rota usa poucos valores. O
 contrato fica visível na assinatura.
 

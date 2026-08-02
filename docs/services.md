@@ -62,12 +62,15 @@ export class TaskController {
 `@Inject(TaskService)` torna a dependência explícita. O Empilha não tenta
 adivinhar tipos de parâmetros por reflection.
 
-Registre o provider antes de inicializar:
+Declare o provider no módulo:
 
 ```ts
-const app = new Empilha()
-  .provide(TaskService)
-  .initialize([TaskController]);
+const AppModule = defineModule({
+  name: "app",
+  controllers: [TaskController],
+  providers: [TaskService],
+});
+const app = await createApplication(AppModule);
 ```
 
 Agora as rotas apenas traduzem HTTP:
@@ -91,12 +94,15 @@ create(@Body(CreateTask) input: CreateTaskInput) {
 Uma dependência pode vir de uma classe, factory ou valor:
 
 ```ts
-app
-  .provide(TaskService)
-  .provide("clock", { useValue: () => new Date() })
-  .provide("mailer", {
-    useFactory: () => createMailer(process.env.MAIL_URL!),
-  });
+const AppModule = defineModule({
+  name: "app",
+  controllers: [TaskController],
+  providers: [
+    TaskService,
+    { provide: "clock", useValue: () => new Date() },
+    { provide: "mailer", useFactory: () => createMailer(process.env.MAIL_URL!) },
+  ],
+});
 ```
 
 Cada configuração deve usar exatamente uma estratégia: `useClass`,
@@ -121,9 +127,10 @@ app.provide("mailer", {
 
 `onDispose` é chamado durante `app.close()` para liberar o recurso.
 
-Configure providers, mocks e substituições antes de `initialize()`.
+Declare providers no módulo e use `createTestApplication()` para mocks e
+substituições durante os testes.
 
 ::: warning Dependências de construtor precisam de `@Inject`
-Se um parâmetro não tiver token, `initialize()` falha informando a classe e a
+Se um parâmetro não tiver token, `createApplication()` falha informando a classe e a
 posição. O erro aparece no bootstrap, não durante uma requisição.
 :::

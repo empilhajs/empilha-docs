@@ -13,7 +13,7 @@ framework os converte para parâmetros posicionais como `$1` e `$2`.
 Adicione a `src/queries/tasks.sql`:
 
 ```sql
--- @query taskCreate
+-- @query taskCreate one
 INSERT INTO tasks (owner_id, title, description)
 VALUES (:auth.sub, :body.title, :body.description)
 RETURNING id, title, description, done, created_at;
@@ -78,7 +78,7 @@ O parser distingue o binding do cast `::`.
 Em atualizações parciais, o sufixo `?` informa se o campo foi enviado:
 
 ```sql
--- @query taskUpdate
+-- @query taskUpdate one
 UPDATE tasks
 SET
   title = CASE
@@ -121,7 +121,9 @@ update(@Body(UpdateTask) input: UpdateTaskInput) {
 ```
 
 Com `@BeforeSql()` sem nome, o próprio método executa antes da query e não
-executa novamente depois dela. Para separar o hook:
+executa novamente depois dela. Com um nome, o método nomeado é o hook executado
+antes do SQL, enquanto o método da rota continua executando normalmente depois
+da query. Para separar o hook:
 
 ```ts
 @BeforeSql("normalizeUpdate")

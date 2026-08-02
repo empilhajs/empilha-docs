@@ -12,12 +12,15 @@ infraestrutura da aplicação.
 ## Limites recomendados
 
 ```ts
-const app = new Empilha().configureHttp({
-  maxBodyBytes: 1024 * 1024,
-  maxHeaderCount: 100,
-  bodyTimeout: 10_000,
-  handlerTimeout: 30_000,
-  maxConcurrentRequests: 500,
+const AppModule = defineModule({ name: "app", controllers: [TaskController] });
+const app = await createApplication(AppModule, {
+  configure: (app) => app.configureHttp({
+    maxBodyBytes: 1024 * 1024,
+    maxHeaderCount: 100,
+    bodyTimeout: 10_000,
+    handlerTimeout: 30_000,
+    maxConcurrentRequests: 500,
+  }),
 });
 ```
 

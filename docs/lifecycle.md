@@ -163,24 +163,27 @@ o trabalho por conta própria.
 Se o shutdown exceder `shutdownTimeout`, `app.close()` rejeita e os recursos
 são fechados quando as requisições em andamento terminarem.
 
-## Hooks de bootstrap
+## Ciclo de vida declarativo
 
-Plugins e integrações podem participar das fases:
+Plugins e integrações participam do ciclo por meio do contexto declarativo:
 
 ```ts
-app
-  .onBeforeValidate((controllers) => {})
-  .onAfterInitialize((controllers) => {})
-  .onStart(async () => {})
-  .onClose(async () => {});
+const LifecycleModule = defineModule({
+  name: "app",
+});
+
+const app = await createApplication(LifecycleModule, {
+  configure: (app) => {
+    app.onStart(async () => {});
+    app.onClose(async () => {});
+  },
+});
 ```
 
-Registre `onBeforeValidate()` e `onAfterInitialize()` durante a configuração.
-`onStart()` pode ser registrado até antes de `listen()` ou `run()`; depois que
-o servidor inicia, o framework rejeita o registro porque o hook não teria mais
-como executar. `onClose()` deve ser registrado antes de `app.close()` concluir.
+Registre o plugin no campo `plugins` do módulo. `onStart()` executa quando o
+servidor inicia e `onClose()` durante o encerramento.
 
-Na maioria das aplicações, `configure → initialize → run` é suficiente.
+Na maioria das aplicações, `defineModule → createApplication → run` é suficiente.
 
 ::: info Você chegou ao fim da trilha
 Você começou com uma rota e terminou com contratos validados, DI, SQL,

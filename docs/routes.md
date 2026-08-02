@@ -65,19 +65,24 @@ Os métodos disponíveis são:
 @Options(path)
 ```
 
-## Registre controllers explicitamente
+## Declare controllers no módulo
 
 O bootstrap continua mostrando todos os pontos de entrada:
 
 ```ts
-const app = new Empilha().initialize([
-  TaskController,
-  UserController,
-]);
+import { createApplication, defineModule } from "empilha";
+
+const AppModule = defineModule({
+  name: "app",
+  controllers: [TaskController, UserController],
+});
+
+const app = await createApplication(AppModule);
 ```
 
 Isso permite criar duas aplicações no mesmo processo com conjuntos diferentes
-de controllers. Não existe um registry global alimentado por imports.
+de controllers. O registro pertence ao módulo e não existe registry global
+alimentado por imports.
 
 ## Opções compartilhadas
 
@@ -97,5 +102,5 @@ middleware, autenticação e OpenAPI.
 
 ::: tip Responsabilidade do controller
 O controller traduz HTTP para chamadas da aplicação. Regras de negócio irão
-para services no capítulo 8.
+para services no capítulo 09.
 :::

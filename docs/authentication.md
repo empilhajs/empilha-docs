@@ -10,19 +10,22 @@ autenticados criem e alterem dados.
 
 ## Configure um verificador
 
-O núcleo do Empilha não impõe formato de token:
+O núcleo do Empilha não impõe formato de token. Configure o verificador durante
+a criação da aplicação:
 
 ```ts
-app.auth(async (token) => {
-  const user = await verifyToken(token);
+const app = await createApplication(AppModule, {
+  configure: (app) => app.auth(async (token) => {
+    const user = await verifyToken(token);
 
-  if (!user) return { valid: false };
+    if (!user) return { valid: false };
 
-  return {
-    valid: true,
-    payload: user,
-    roles: user.roles,
-  };
+    return {
+      valid: true,
+      payload: user,
+      roles: user.roles,
+    };
+  }),
 });
 ```
 
@@ -87,25 +90,33 @@ bun add @empilha/jwt
 ```
 
 ```ts
-import { jwt, type JwtService } from "@empilha/jwt";
+import { t } from "empilha";
+import { jwt } from "@empilha/jwt";
 
-const access = jwt<UserIdentity>({
+const access = jwt({
   name: "access",
   secret: process.env.JWT_SECRET!,
   expiresIn: "7d",
   issuer: "tasks-api",
+  claims: t.Object({
+    sub: t.String(),
+    roles: t.Optional(t.Array(t.String())),
+  }),
 });
 
-const app = new Empilha()
-  .usePlugin(access.auth())
-  .initialize([TaskController]);
+const AuthModule = defineModule({
+  name: "auth-app",
+  controllers: [TaskController],
+  plugins: [access, access.auth()],
+});
+const app = await createApplication(AuthModule);
 ```
 
 Emita um token em uma rota de login:
 
 ```ts
 @Post("/login")
-async login(@Inject("access") access: JwtService<UserIdentity>) {
+async login() {
   return {
     token: await access.sign({
       sub: "user-1",
@@ -115,8 +126,9 @@ async login(@Inject("access") access: JwtService<UserIdentity>) {
 }
 ```
 
-O plugin registra o serviço com o nome configurado e conecta seu verificador
-ao `app.auth()`.
+O plugin registra o serviço com um token próprio (`access.token`) e
+`access.auth()` conecta o verificador ao pipeline de autenticação. Se precisar
+injetar o serviço em vez de capturá-lo no módulo, use `@Inject(access.token)`.
 
 ## Hierarquia de roles
 

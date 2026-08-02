@@ -13,10 +13,9 @@ Esta página é uma referência rápida. Para aprender o modelo, leia
 ## Bootstrap
 
 ```text
-new Empilha()
-  → configure recursos
-  → validate controllers e dependências
-  → initialize metadata, DI, SQL, OpenAPI e rotas
+defineModule(...)
+  → createApplication()
+  → validar grafo e compilar metadata, DI, SQL, OpenAPI e rotas
   → listen
   → close
 ```
@@ -24,17 +23,19 @@ new Empilha()
 No uso comum:
 
 ```ts
-const app = new Empilha()
-  .configure(config)
-  .provide(Service)
-  .usePlugin(plugin)
-  .initialize([Controller]);
+const AppModule = defineModule({
+  name: "app",
+  controllers: [Controller],
+  providers: [Service],
+  plugins: [plugin],
+});
+const app = await createApplication(AppModule, { runtime: config });
 
 await app.run();
 ```
 
-`initialize()` chama `validate()` automaticamente. Use as fases separadas
-somente em integrações avançadas.
+`createApplication()` valida o grafo antes de ativar o runtime. Não há fases
+públicas separadas para registrar controllers.
 
 Rotas simples, sem middleware global, DI request-scoped ou dependências de
 contexto, podem usar um caminho leve sem criar `RequestScope`. Isso não remove
@@ -64,6 +65,11 @@ parse da URL
   → @AfterCommit
   → schema e serialização da resposta
 ```
+
+`@BeforeSql()` sem nome é uma exceção importante: o próprio método do
+controller é usado como hook, executa antes do SQL e não volta a executar
+depois. Com `@BeforeSql("nomeDoHook")`, o hook nomeado roda antes do SQL e o
+método da rota roda normalmente depois da query.
 
 `@AfterResponse` é uma variação: o scheduler aceita o trabalho, responde `202`
 e executa o método com o mesmo request scope.

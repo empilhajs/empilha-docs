@@ -54,10 +54,14 @@ export class TaskController {
 Agora deixe `src/app.ts` responsável apenas pelo bootstrap:
 
 ```ts
-import { Empilha } from "empilha";
+import { createApplication, defineModule } from "empilha";
 import { TaskController } from "./controllers/task.controller";
 
-const app = new Empilha().initialize([TaskController]);
+const AppModule = defineModule({
+  name: "app",
+  controllers: [TaskController],
+});
+const app = await createApplication(AppModule);
 
 await app.run({ port: 4000 });
 ```

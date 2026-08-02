@@ -1,12 +1,13 @@
 ---
 title: Configuração
-description: Centralize porta, HTTP, plugins e banco em um arquivo tipado.
+description: Centralize porta, HTTP, políticas e banco em um arquivo tipado.
 ---
 
 # Configuração
 
-O bootstrap já acumulou banco, autenticação e políticas HTTP. Vamos mover
-opções para um arquivo tipado e manter `app.ts` legível.
+O bootstrap já acumulou banco, autenticação e políticas HTTP. Mova as opções
+operacionais para um arquivo tipado e mantenha os plugins no módulo da
+aplicação.
 
 ## Crie `empilha.config.ts`
 
@@ -14,18 +15,6 @@ Na raiz do projeto:
 
 ```ts
 import { defineConfig } from "empilha";
-import { postgres } from "@empilha/pg";
-import { jwt } from "@empilha/jwt";
-
-const logger = console;
-
-const access = jwt({
-  name: "access",
-  secret: process.env.JWT_SECRET!,
-  expiresIn: "7d",
-  issuer: "tasks-api",
-});
-
 export default defineConfig({
   server: {
     port: Number(process.env.PORT) || 4000,
@@ -48,16 +37,8 @@ export default defineConfig({
     title: "Tasks API",
     version: "1.0.0",
   },
-  plugins: [
-    access.auth(),
-    postgres({
-      url: process.env.DATABASE_URL!,
-      sql: "./src/queries",
-      healthCheck: "postgres",
-    }),
-  ],
   logging: {
-    logger,
+    requests: true,
   },
 });
 ```
@@ -70,21 +51,37 @@ consumida pelo `src/app.ts` para criar o pool e chamar `app.postgres()`. O
 `.configure()` aplica as opções operacionais, mas não cria uma conexão com o
 banco automaticamente.
 
-## Aplique no bootstrap
+## Crie a aplicação
 
 ```ts
-import { Empilha } from "empilha";
+import { createApplication, defineModule } from "empilha";
 import config from "../empilha.config";
 import { TaskController } from "./controllers/task.controller";
 
-const app = new Empilha()
-  .configure(config)
-  .initialize([TaskController]);
+import { postgres } from "@empilha/pg";
+import { jwt } from "@empilha/jwt";
+
+const access = jwt({
+  name: "access",
+  secret: process.env.JWT_SECRET!,
+});
+const database = postgres({
+  url: process.env.DATABASE_URL!,
+  sql: "./src/queries",
+});
+
+const AppModule = defineModule({
+  name: "app",
+  controllers: [TaskController],
+  plugins: [database, access, access.auth()],
+});
+const app = await createApplication(AppModule, { runtime: config });
 
 await app.run();
 ```
 
-`server.port` permite chamar `run()` sem argumento.
+`server.port` permite chamar `run()` sem argumento. Plugins pertencem ao
+`defineModule()`; `defineConfig()` contém apenas configuração de runtime.
 
 ## Limites HTTP
 
@@ -144,16 +141,22 @@ http: {
 O framework valida o preflight e envia `Vary: Origin`. Com `credentials: true`,
 a origem não pode ser `*`.
 
-## Configuração fluente continua disponível
+## Ajustes específicos
 
 O objeto centralizado é conveniente, não obrigatório:
 
 ```ts
-const app = new Empilha()
-  .configureHttp({ handlerTimeout: 20_000 })
-  .openapi({ title: "Tasks API", version: "1.0.0" })
-  .usePlugin(access.auth())
-  .initialize([TaskController]);
+const AppModule = defineModule({
+  name: "app",
+  controllers: [TaskController],
+  plugins: [access, access.auth()],
+});
+const app = await createApplication(AppModule, {
+  configure: (app) => {
+    app.configureHttp({ handlerTimeout: 20_000 });
+    app.openapi({ title: "Tasks API", version: "1.0.0" });
+  },
+});
 ```
 
 Escolha um estilo principal para o projeto. Evite espalhar a mesma política
@@ -171,7 +174,7 @@ app.validateResponseSchemas(true);
 Mesmo com validação desligada, a serialização pelo schema continua removendo
 campos não declarados.
 
-::: warning Configure antes de `initialize()`
-Depois da preparação dos controllers, a aplicação não aceita mudanças que
+::: warning Configure durante a criação
+Depois da compilação do módulo, a aplicação não aceita mudanças que
 alterariam o contrato das rotas.
 :::

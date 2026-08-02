@@ -13,24 +13,30 @@ configuração. Use plugins para agrupar integrações e registros reutilizávei
 ## Plugin mínimo
 
 ```ts
-import { definePlugin, requestLogger } from "empilha";
+import { createApplication, defineDeclarativePlugin, defineModule } from "empilha";
 
-export const observability = definePlugin((context) => {
-  context.useMiddleware(requestLogger());
-  context.registerPluginService("telemetry", telemetry);
+export const observability = defineDeclarativePlugin({
+  name: "observability",
+  version: "1.0.0",
+  register(context) {
+    context.provider({ provide: "telemetry", useValue: telemetry });
+  },
 });
 ```
 
-Instale com `usePlugin()`:
+Declare o plugin no módulo:
 
 ```ts
-const app = new Empilha()
-  .usePlugin(observability)
-  .initialize([TaskController]);
+const AppModule = defineModule({
+  name: "app",
+  controllers: [TaskController],
+  plugins: [observability],
+});
+const app = await createApplication(AppModule);
 ```
 
-Middleware e plugins têm métodos de registro separados: use
-`useMiddleware()` para middleware e `usePlugin()` para plugins.
+Middleware global pode ser aplicado no callback `configure`; plugins declarativos
+ficam no campo `plugins` do módulo.
 
 ## Plugin configurável
 
@@ -40,20 +46,23 @@ type CacheOptions = {
 };
 
 export function cache(options: CacheOptions) {
-  return definePlugin((context) => {
-    const client = createCache(options.url);
-
-    context.registerPluginService("cache", client);
+  return defineDeclarativePlugin({
+    name: "cache",
+    version: "1.0.0",
+    register(context) {
+      const client = createCache(options.url);
+      context.provider({ provide: "cache", useValue: client });
+    },
   });
 }
 ```
 
 ## Serviço injetável em rota
 
-Plugins como `@empilha/jwt` registram um serviço nomeado:
+Plugins como `@empilha/jwt` registram um serviço com um token próprio:
 
 ```ts
-app.registerPluginService("access", service);
+context.provider({ provide: "access", useValue: service });
 ```
 
 No controller, injete-o com:
@@ -62,19 +71,19 @@ No controller, injete-o com:
 login(@Inject("access") access: JwtService) {}
 ```
 
-`registerPluginService` é voltado a integrações de plugin. Para dependências
+No JWT oficial, prefira o token exportado pelo serviço: `@Inject(access.token)`.
+
+O registro por token é voltado a integrações de plugin. Para dependências
 normais de construtor, prefira `provide()`.
 
 ## Hooks disponíveis
 
 | Hook | Momento |
 | --- | --- |
-| `onBeforeValidate` | antes de validar controllers |
-| `onAfterInitialize` | depois de registrar controllers |
-| `onStart` | quando o servidor inicia |
+| `register` | durante a compilação do módulo |
+| `ready` | depois que todos os plugins foram registrados |
 | `onClose` | durante o fechamento |
 
-O contexto do plugin expõe `configure()`, `configureHttp()`,
-`useMiddleware()`, `registerPluginService()`, `registerQuery()`, `auth()`,
-`postgres()` e o adaptador HTTP. Plugins devem ser instalados antes de
-`initialize()`.
+O contexto do plugin expõe registros declarativos para providers, autenticação,
+PostgreSQL e queries. O módulo é compilado antes de a aplicação começar a
+atender requisições.

@@ -1,29 +1,31 @@
 ---
-title: Migração e compatibilidade
-description: Como adotar mudanças do Empilha sem quebrar aplicações existentes.
+title: Atualização de aplicações
+description: Como atualizar uma aplicação para a arquitetura modular atual.
 ---
 
-# Migração e compatibilidade
+# Atualização de aplicações
 
-O caminho recomendado é atualizar uma versão por vez, executar `bun run check` e
-validar o bootstrap e as respostas HTTP em `app.test()`.
+O Empilha usa módulos como única fronteira de composição. Execute `bun run check`
+e valide o bootstrap e as respostas HTTP em `app.test()`.
 
 ## `@Produces`
 
 O decorator oficial para definir o media type continua sendo `@Produces()`. Não
 use `@ContentType`; esse nome não faz parte da API pública.
 
-## `configure()` e `configureHttp()`
+## Configuração da aplicação
 
-`configureHttp()` continua disponível para políticas HTTP. `configure()` agrupa
-HTTP, server, health, plugins, logging e validação em uma única configuração.
-As duas formas usam o mesmo núcleo:
+`configureHttp()` continua disponível para políticas HTTP. A configuração é
+aplicada no callback de `createApplication`, enquanto o módulo declara a
+composição da aplicação:
 
 ```ts
-new Empilha().configureHttp({ maxHeaderCount: 100 });
-
-new Empilha().configure({
-  http: { maxHeaderCount: 100 },
+const AppModule = defineModule({
+  name: "app",
+  controllers: [TaskController],
+});
+const app = await createApplication(AppModule, {
+  configure: (app) => app.configureHttp({ maxHeaderCount: 100 }),
 });
 ```
 

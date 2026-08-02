@@ -11,12 +11,16 @@ declarações para gerar OpenAPI 3.1.
 ## Ative
 
 ```ts
-const app = new Empilha()
-  .openapi({
+const AppModule = defineModule({
+  name: "app",
+  controllers: [TaskController],
+});
+const app = await createApplication(AppModule, {
+  configure: (app) => app.openapi({
     title: "Tasks API",
     version: "1.0.0",
-  })
-  .initialize([TaskController]);
+  }),
+});
 ```
 
 Ou configure em `empilha.config.ts`, como no capítulo anterior.

@@ -42,7 +42,7 @@ Ative decorators no `tsconfig.json`:
 Crie `src/app.ts`:
 
 ```ts
-import { Controller, Empilha, Get } from "empilha";
+import { createApplication, defineModule, Controller, Get } from "empilha";
 
 @Controller("/")
 class AppController {
@@ -52,7 +52,12 @@ class AppController {
   }
 }
 
-const app = new Empilha().initialize([AppController]);
+const AppModule = defineModule({
+  name: "app",
+  controllers: [AppController],
+});
+
+const app = await createApplication(AppModule);
 
 await app.run({ port: 4000 });
 ```
@@ -85,18 +90,18 @@ curl http://localhost:4000
 
 1. `@Controller("/")` dá um prefixo às rotas da classe.
 2. `@Get("/")` transforma `index()` em uma rota GET.
-3. `initialize([AppController])` entrega o controller ao framework.
+3. `createApplication(AppModule)` compila o módulo e registra seus controllers.
 4. `run({ port: 4000 })` abre a porta HTTP.
 
 Importar uma classe não registra nada globalmente. A aplicação conhece somente
-os controllers passados a `initialize()`.
+os controllers declarados no `AppModule`.
 
 ::: tip Guarde esta forma
 
 ```text
-descreva com decorators → initialize() → run()
+descreva com decorators → defineModule() → createApplication() → run()
 ```
 
-Tudo o que você aprender daqui em diante se encaixa antes, dentro ou depois
-dessas três partes.
+Tudo o que você aprender daqui em diante se encaixa dentro do módulo, na
+configuração da aplicação ou depois da compilação.
 :::

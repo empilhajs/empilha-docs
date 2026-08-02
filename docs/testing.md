@@ -14,13 +14,17 @@ Crie `tests/task.test.ts`:
 
 ```ts
 import { afterAll, describe, expect, test } from "bun:test";
-import { createTestApp } from "empilha";
+import { createTestApplication, defineModule } from "empilha";
 import { TaskController } from "../src/controllers/task.controller";
 import { TaskService } from "../src/services/task.service";
 
-const app = createTestApp([TaskController], (configured) => {
-  configured.provide(TaskService);
+const TestModule = defineModule({
+  name: "tasks-test",
+  controllers: [TaskController],
+  providers: [TaskService],
 });
+
+const app = await createTestApplication(TestModule).compile();
 
 afterAll(() => app.close());
 
@@ -40,7 +44,8 @@ describe("tasks", () => {
 });
 ```
 
-`createTestApp()` configura e inicializa, mas não abre porta.
+`createTestApplication(Module).compile()` compila o mesmo módulo de produção,
+sem abrir uma porta.
 
 ## Teste o contrato, não a implementação
 
@@ -74,11 +79,13 @@ const response = await app.test().delete("/tasks/1", undefined, {
 No setup, use um verificador determinístico:
 
 ```ts
-configured.auth(async (token) => ({
+const app = await createTestApplication(TestModule, {
+  configure: (configured) => configured.auth(async (token) => ({
   valid: token === "test-token",
   roles: ["admin"],
   payload: { sub: "user-1" },
-}));
+  })),
+}).compile();
 ```
 
 ## Substitua providers
@@ -88,9 +95,10 @@ const fakeTasks = {
   list: () => [{ id: 1, title: "Fake", done: false }],
 };
 
-configured.provide(TaskService, {
-  useValue: fakeTasks as TaskService,
-});
+const app = await createTestApplication(TestModule)
+  .overrideProvider(TaskService)
+  .useValue(fakeTasks as TaskService)
+  .compile();
 ```
 
 O controller não muda para receber o mock.
@@ -109,12 +117,10 @@ const database = testPostgres({
   },
 });
 
-const app = createTestApp([TaskController], (configured) => {
-  configured.postgres(database, {
-    sql: "./src/queries",
-    healthCheck: false,
-  });
-});
+const app = await createTestApplication(TestModule, {
+  postgres: database,
+  configure: (configured) => configured.configureHttp({ cors: false }),
+}).compile();
 
 const response = await app.test().get("/tasks");
 

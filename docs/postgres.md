@@ -18,18 +18,21 @@ bun add -d @types/pg
 ## Configure
 
 ```ts
-import { Empilha } from "empilha";
+import { createApplication, defineModule } from "empilha";
 import { postgres } from "@empilha/pg";
 
 const database = postgres({
   url: process.env.DATABASE_URL!,
   sql: "./src/queries",
-  healthCheck: "postgres",
+  healthCheck: "database",
 });
 
-const app = new Empilha()
-  .usePlugin(database)
-  .initialize([TaskController]);
+const AppModule = defineModule({
+  name: "app",
+  controllers: [TaskController],
+  plugins: [database],
+});
+const app = await createApplication(AppModule);
 
 await app.run({ port: 4000 });
 ```
@@ -37,7 +40,7 @@ await app.run({ port: 4000 });
 O plugin:
 
 - cria um `pg.Pool`;
-- carrega os arquivos SQL;
+- carrega os arquivos SQL quando `sql` aponta para um arquivo ou diretório;
 - habilita queries e transações;
 - registra um check do banco;
 - encerra o pool em `app.close()`.
@@ -53,12 +56,16 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
-const app = new Empilha()
-  .postgres(pool, {
+const AppModule = defineModule({
+  name: "app",
+  controllers: [TaskController],
+});
+const app = await createApplication(AppModule, {
+  configure: (app) => app.postgres(pool, {
     sql: "./src/queries",
-    healthCheck: "postgres",
-  })
-  .initialize([TaskController]);
+    healthCheck: "database",
+  }),
+});
 ```
 
 Por padrão, `app.close()` também chama `pool.end()`. Se o pool pertence a
@@ -78,7 +85,7 @@ Adicione:
 ```json
 {
   "scripts": {
-    "migrate": "bun node_modules/empilha/scripts/migrate.ts"
+    "migrate": "bun node_modules/empilha/scripts/database/migrate.ts"
   }
 }
 ```
@@ -115,7 +122,7 @@ curl http://localhost:4000/health/ready
 {
   "status": "ok",
   "checks": {
-    "postgres": "up"
+    "database": "up"
   }
 }
 ```

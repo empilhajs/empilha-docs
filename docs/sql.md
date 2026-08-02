@@ -30,12 +30,12 @@ Migrations criam estrutura. Queries da aplicação ficam em outro diretório.
 Crie `src/queries/tasks.sql`:
 
 ```sql
--- @query taskList
+-- @query taskList many
 SELECT id, title, description, done, created_at
 FROM tasks
 ORDER BY created_at DESC;
 
--- @query taskFind
+-- @query taskFind one
 SELECT id, title, description, done, created_at
 FROM tasks
 WHERE id = :param.id;
@@ -45,12 +45,15 @@ Uma linha `-- @query nome` inicia uma nova query. O restante continua sendo SQL
 normal, legível por editores e pelo PostgreSQL. Comentários comuns continuam
 sendo comentários e não são interpretados pelo loader.
 
-## Carregue antes dos controllers
+## Declare a integração no módulo
 
 ```ts
-const app = new Empilha()
-  .postgres(pool, { sql: "./src/queries" })
-  .initialize([TaskController]);
+const AppModule = defineModule({
+  name: "app",
+  controllers: [TaskController],
+  plugins: [databasePlugin],
+});
+const app = await createApplication(AppModule);
 ```
 
 O diretório é percorrido recursivamente. Nomes duplicados ou ausentes falham no
@@ -86,10 +89,10 @@ Strings soltas podem conter erros. O script oficial gera constantes a partir
 dos arquivos:
 
 ```sh
-bun node_modules/empilha/scripts/generate-query-types.ts \
+bun node_modules/empilha/scripts/application/generate-query-types.ts \
   ./src/queries \
-  ./src/queries/query-names.ts \
-  queryNames
+  ./src/queries/query-artifacts.ts \
+  --artifacts
 ```
 
 No `package.json`:
@@ -97,7 +100,7 @@ No `package.json`:
 ```json
 {
   "scripts": {
-    "generate:queries": "bun node_modules/empilha/scripts/generate-query-types.ts ./src/queries ./src/queries/query-names.ts queryNames"
+    "generate:queries": "bun node_modules/empilha/scripts/application/generate-query-types.ts ./src/queries ./src/queries/query-artifacts.ts --artifacts"
   }
 }
 ```
@@ -105,10 +108,31 @@ No `package.json`:
 Depois:
 
 ```ts
-import { queryNames } from "../queries/query-names";
+import { queryArtifacts } from "../queries/query-artifacts";
 
-@Sql(queryNames.taskList)
+@Sql(queryArtifacts.taskList)
 ```
+
+Passe os artifacts ao módulo e, opcionalmente, valide o manifest no bootstrap:
+
+```ts
+import { createApplication, defineModule } from "empilha";
+import { queryArtifacts, queryArtifactsManifest } from "../queries/query-artifacts";
+
+const AppModule = defineModule({
+  name: "app",
+  controllers: [TaskController],
+  queries: Object.values(queryArtifacts),
+});
+
+const app = await createApplication(AppModule, {
+  queryManifest: queryArtifactsManifest,
+  verifyQueryManifest: true,
+});
+```
+
+O modo simples continua disponível para nomes tipados, mas não carrega hash,
+origem ou tipos de binding.
 
 Para testes ou uma query criada em código:
 
