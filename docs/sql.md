@@ -63,9 +63,10 @@ bootstrap.
 
 ```ts
 import { Get, Result, Sql } from "empilha";
+import { queryArtifacts } from "../queries/query-artifacts";
 
 @Get("/")
-@Sql("taskList")
+@Sql(queryArtifacts.taskList)
 @Result("many")
 list() {}
 ```
@@ -75,7 +76,7 @@ rota declarativa, o método pode ficar vazio.
 
 ```ts
 @Get("/:id")
-@Sql("taskFind")
+@Sql(queryArtifacts.taskFind)
 @Result("one")
 find() {}
 ```

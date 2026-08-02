@@ -129,7 +129,7 @@ expect(database.queries[0]).toContain("SELECT");
 ```
 
 O runner registra SQL e parâmetros. As fixtures de rotas são associadas pelo
-nome lógico da query, o mesmo nome usado em `@Sql("taskList")`.
+nome lógico da query, o mesmo id usado em `@Sql(queryArtifacts.taskList)`.
 
 ```ts
 fixtures: {

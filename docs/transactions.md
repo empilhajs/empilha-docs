@@ -21,8 +21,10 @@ resposta e quando a operação exige transação.
 Uma busca por ID normalmente combina:
 
 ```ts
+import { queryArtifacts } from "../queries/query-artifacts";
+
 @Get("/:id")
-@Sql("taskFind")
+@Sql(queryArtifacts.taskFind)
 @Result("one")
 @NotFoundWhenEmpty()
 @Returns(Task)
@@ -37,7 +39,7 @@ Se o método retorna algo, esse valor vence o resultado automático:
 
 ```ts
 @Get("/:id/summary")
-@Sql("taskFind")
+@Sql(queryArtifacts.taskFind)
 @Result("one")
 summary(@Request() request: RequestContext) {
   const task = request.result as TaskRecord;
@@ -55,7 +57,7 @@ O SQL executa antes do método e fica em `request.result`.
 ```ts
 @Post("/")
 @Transaction("write")
-@Sql("taskCreate")
+@Sql(queryArtifacts.taskCreate)
 @Result("one")
 create() {}
 ```
@@ -102,7 +104,7 @@ Algumas tarefas só devem ser executadas depois que a transação for confirmada
 ```ts
 @Post("/")
 @Transaction("write")
-@Sql("taskCreate")
+@Sql(queryArtifacts.taskCreate)
 @AfterCommit("notifyCreated")
 create() {}
 

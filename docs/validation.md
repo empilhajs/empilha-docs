@@ -103,9 +103,11 @@ completo.
 Uma rota SQL pode precisar validar o body sem recebê-lo no método:
 
 ```ts
+import { queryArtifacts } from "../queries/query-artifacts";
+
 @Post("/")
 @Body(CreateTask)
-@Sql("taskCreate")
+@Sql(queryArtifacts.taskCreate)
 create() {}
 ```
 

@@ -48,11 +48,13 @@ Dois endpoints aparecem:
 O endpoint de criação já é documentável:
 
 ```ts
+import { queryArtifacts } from "../queries/query-artifacts";
+
 @Post("/")
 @Body(CreateTask)
 @Returns(Task)
 @Roles("user")
-@Sql("taskCreate")
+@Sql(queryArtifacts.taskCreate)
 @Result("one")
 create() {}
 ```

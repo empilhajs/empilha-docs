@@ -22,10 +22,12 @@ RETURNING id, title, description, done, created_at;
 Na rota:
 
 ```ts
+import { queryArtifacts } from "../queries/query-artifacts";
+
 @Post("/")
 @Body(CreateTask)
 @Roles("user")
-@Sql("taskCreate")
+@Sql(queryArtifacts.taskCreate)
 @Result("one")
 @Returns(Task)
 create() {}
@@ -101,7 +103,7 @@ Queries nomeadas normalmente carregam seus próprios bindings. Para SQL
 posicional ou compatibilidade:
 
 ```ts
-@Sql("taskFind", { params: ["param.id"] })
+@Sql(queryArtifacts.taskFind, { params: ["param.id"] })
 ```
 
 Prefira bindings dentro do arquivo: eles deixam o contrato visível ao ler a
@@ -114,7 +116,7 @@ Quando um valor precisa ser normalizado antes dos bindings:
 ```ts
 @Patch("/:id")
 @BeforeSql()
-@Sql("taskUpdate")
+@Sql(queryArtifacts.taskUpdate)
 update(@Body(UpdateTask) input: UpdateTaskInput) {
   input.title = input.title?.trim();
 }
