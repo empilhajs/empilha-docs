@@ -3,14 +3,14 @@ title: Entenda o Empilha
 description: Separe configuração, preparação e execução de requisições.
 ---
 
-# Entenda o `Empilha`
+# Entenda o Empilha
 
 Antes de criar mais endpoints, vale entender quando cada parte da aplicação
 executa. O Empilha trabalha em duas linhas do tempo.
 
 | Linha do tempo | Frequência | Exemplo |
 | --- | --- | --- |
-| Bootstrap | uma vez por processo | configurar, validar e registrar rotas |
+| Compilação | uma vez por processo | montar módulo, validar e registrar rotas |
 | Requisição | uma vez por chamada | validar entrada, chamar controller e responder |
 
 ## Bootstrap
@@ -18,13 +18,15 @@ executa. O Empilha trabalha em duas linhas do tempo.
 Uma aplicação maior tem esta forma:
 
 ```ts
-const app = new Empilha()
-  .configure(config)
-  .postgres(pool, { sql: "./src/queries" })
-  .provide(TaskService)
-  .auth(verifyToken)
-  .useMiddleware(logger)
-  .initialize([TaskController]);
+const AppModule = defineModule({
+  name: "app",
+  controllers: [TaskController],
+  providers: [TaskService],
+  plugins: [databasePlugin, authPlugin],
+});
+const app = await createApplication(AppModule, {
+  configure: (app) => app.useMiddleware(logger),
+});
 
 await app.run();
 ```
@@ -34,18 +36,18 @@ Leia de cima para baixo:
 ```text
 configurar recursos
     ↓
-initialize(): validar e compilar controllers
+createApplication(): validar e compilar o módulo
     ↓
 run(): começar a atender
 ```
 
-Tudo que uma rota precisa deve existir antes de `initialize()`. Assim, uma
-query ausente ou uma dependência impossível derruba o processo no bootstrap,
+Tudo que uma rota precisa deve estar declarado no módulo. Assim, uma
+query ausente ou uma dependência não resolvida interrompe o bootstrap,
 em vez de surpreender o primeiro usuário.
 
-## O que `initialize()` faz
+## O que `createApplication()` faz
 
-`initialize()`:
+`createApplication()`:
 
 - valida o grafo de dependências;
 - cria ou prepara os controllers;
@@ -54,7 +56,10 @@ em vez de surpreender o primeiro usuário.
 - confere queries e bindings SQL;
 - registra as rotas no adaptador HTTP.
 
-Ele não abre uma porta. Isso acontece somente em `listen()` ou `run()`.
+Ele não abre uma porta. Isso acontece quando você chama `run()` depois da
+compilação. `run()` inicia o servidor e configura o encerramento ordenado para
+o caso comum; a alternativa de baixo nível fica explicada no capítulo de
+ciclo de vida.
 
 ## Requisição
 
@@ -90,9 +95,9 @@ Aqui os decorators dizem:
 - leia `id` do caminho;
 - converta o valor para número.
 
-`initialize()` transforma essa descrição em código de execução.
+`createApplication()` transforma essa descrição em código de execução.
 
 ::: warning A ordem que importa
-Configure recursos antes de `initialize()` e chame `run()` por último. A ordem
+Declare recursos no módulo, crie a aplicação e chame `run()` por último. A ordem
 visual dos decorators no mesmo método não altera o pipeline.
 :::
