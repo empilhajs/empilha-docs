@@ -33,7 +33,7 @@ página, também podem validar parâmetros.
 ## Query string
 
 ```ts
-import { Query, t } from "empilha";
+import { Query, QueryParams, t } from "empilha";
 
 @Get("/")
 list(
@@ -99,19 +99,45 @@ debug(@Request() request: RequestContext) {
 }
 ```
 
-Os mapas `rawParams`, `rawQuery`, `params` e `query` são somente leitura por
-contrato. Quando `@QueryParams` aplica defaults ou conversões, o framework
-substitui `query` por um novo mapa e preserva `rawQuery` sem alterá-lo.
+### Valores originais e valores tratados
 
-Use `@Query("page", Number)` para poucos valores diretamente na assinatura.
-Use `@QueryParams(Schema)` quando quiser validar e normalizar a query inteira.
-Use `@Request()` para receber o `RequestContext` completo; em services, use
-`requestContext()` somente quando houver um `RequestScope` ativo. Rotas leves
-podem não criar esse scope, então `@Context()`/DI request-scoped e
-`requestContext()` não são garantidos nesse caminho.
+O `RequestContext` oferece quatro objetos para parâmetros. Todos são somente
+leitura:
 
-Prefira `@Param`, `@Query` e `@Header` quando a rota usa poucos valores. O
-contrato fica visível na assinatura.
+| Propriedade | Conteúdo |
+| --- | --- |
+| `rawParams` | parâmetros do caminho, sempre como texto |
+| `params` | parâmetros do caminho disponíveis para a rota |
+| `rawQuery` | query string original, antes de conversões e defaults |
+| `query` | query string usada pela rota, possivelmente normalizada |
+
+Na prática, você raramente precisa acessá-los diretamente. Use `@Param`,
+`@Query` e `@Header` quando a rota usa poucos valores; assim o contrato fica
+visível na assinatura.
+
+Use `@QueryParams(Schema)` quando quiser validar e normalizar a query inteira:
+
+```ts
+const Filters = t.Object({
+  page: t.Integer({ minimum: 1 }),
+  done: t.Optional(t.Boolean()),
+});
+
+@Get("/")
+@QueryParams(Filters, { page: 1 })
+list() {}
+```
+
+Nesse caso, `query` recebe os defaults e conversões definidos pelo schema, mas
+`rawQuery` continua representando exatamente os valores recebidos na URL.
+O framework cria um novo objeto para `query`; não altere nenhuma dessas
+propriedades manualmente.
+
+Use `@Request()` somente quando precisar de várias informações da requisição
+ao mesmo tempo. Em services, `requestContext()` só funciona quando existe um
+`RequestScope` ativo. Rotas leves podem não criar esse escopo; nesses casos,
+`@Context()`, DI com escopo de request e `requestContext()` não ficam
+disponíveis automaticamente.
 
 `request.signal` é abortado quando o cliente desconecta ou quando o timeout da
 requisição vence. Passe-o para operações cooperativas, como `fetch`:
@@ -127,9 +153,7 @@ async remote(@Request() request: RequestContext) {
 }
 ```
 
-Rotas simples podem executar sem `RequestScope`; nesse caso, o `signal` do
-`RequestContext` continua disponível para cancelamento, mas APIs como
-`requestContext()` e DI request-scoped exigem `@Context()`/escopo.
+O `signal` continua disponível no `RequestContext` mesmo em uma rota leve.
 
 ::: info Até aqui, tudo veio da URL
 O próximo capítulo trata de JSON e schemas. Body exige validação porque é dado
