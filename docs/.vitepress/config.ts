@@ -62,6 +62,7 @@ const sidebar = [
       { text: 'Plugins', link: '/plugins' },
       { text: 'Plugins declarativos', link: '/plugin-contracts' },
       { text: 'Inspeção e integridade', link: '/diagnostics' },
+      { text: 'Compatibilidade', link: '/compatibility' },
       { text: 'Atualização de aplicações', link: '/migration' },
     ],
   },

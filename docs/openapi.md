@@ -85,10 +85,11 @@ Sem tags explícitas, o nome do controller é usado.
 Todas as rotas incluem respostas padronizadas `400` e `500`. Rotas protegidas
 incluem `401` e `403`; `@NotFoundWhenEmpty` adiciona `404`.
 
-## Swagger UI e internet
+## Swagger UI sem dependência externa
 
-`/openapi.json` é servido localmente. A interface `/docs` carrega assets do
-Swagger UI pelo jsDelivr e precisa de internet no navegador.
+`/openapi.json` e todos os assets da interface `/docs` são servidos localmente.
+Depois que a aplicação estiver compilada, o Swagger UI não depende de CDN nem
+de acesso à internet no navegador.
 
 ::: tip O schema é a fonte
 Se a documentação estiver errada, corrija o decorator ou schema da rota. Não

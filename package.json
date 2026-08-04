@@ -1,5 +1,5 @@
 {
-  "name": "empilha-blog",
+  "name": "empilha-docs",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -7,7 +7,8 @@
     "start": "vitepress dev docs",
     "build": "vitepress build docs",
     "serve": "vitepress preview docs",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "check": "npm run typecheck && npm run build"
   },
   "devDependencies": {
     "typescript": "~6.0.2",
