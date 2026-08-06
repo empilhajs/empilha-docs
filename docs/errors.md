@@ -42,6 +42,15 @@ Use `HttpError` para outro status:
 throw new HttpError(409, "A tarefa já foi concluída");
 ```
 
+Os erros HTTP do framework também expõem um código estável para logs e
+observabilidade:
+
+| Erro | Código |
+| --- | --- |
+| `HttpError` | `HTTP_ERROR` |
+| `NotFoundError` | `NOT_FOUND` |
+| `ValidationError` | `VALIDATION_ERROR` |
+
 ## Erros de domínio
 
 Um service reutilizável não precisa importar conceitos HTTP:

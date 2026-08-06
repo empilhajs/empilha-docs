@@ -5,7 +5,7 @@ description: Versões suportadas e premissas dos exemplos.
 
 # Compatibilidade
 
-Esta documentação acompanha a versão `0.2.2` do Empilha.
+Esta documentação acompanha a versão `0.2.3` do Empilha.
 
 ## Runtime
 
@@ -24,8 +24,8 @@ voltados ao runtime Bun. Node.js não é um runtime suportado pelo framework.
 Integrações são versionadas junto com o core:
 
 ```sh
-bun add @empilha/jwt@^0.2.2
-bun add @empilha/pg@^0.2.2 pg
+bun add @empilha/jwt@^0.2.3
+bun add @empilha/pg@^0.2.3 pg
 ```
 
 O pacote `@empilha/jwt` requer `jose` 6.x. O pacote `@empilha/pg` requer `pg`
